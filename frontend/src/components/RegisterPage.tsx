@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { ImSpinner8 } from 'react-icons/im';
 import { FaArrowRight } from 'react-icons/fa';
 import api from '../api/api';
+import OAuthButtons from './OAuthButtons';
 
 interface RegisterFormData {
     username: string;
@@ -174,6 +175,10 @@ const RegisterPage: React.FC = () => {
                         )}
                     </button>
                 </form>
+                {/* OAuth Buttons */}
+                <OAuthButtons />
+
+                {/* Footer Section */}
 
                 <div className="mt-8 pt-6 border-t border-slate-100 text-center">
                     <p className="text-slate-500 text-sm">

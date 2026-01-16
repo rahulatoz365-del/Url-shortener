@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, Routes, useLocation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
-import Navbar from "./components/NavBar";
+import Navbar from "./components/Navbar";
 import ShortenUrlPage from "./components/ShortenUrlPage";
 import Footer from "./components/Footer";
 import LandingPage from "./components/LandingPage";
@@ -12,6 +12,7 @@ import LoginPage from "./components/LoginPage";
 import DashboardLayout from "./components/Dashboard/DashboardLayout";
 import PrivateRoute from "./PrivateRoute";
 import ErrorPage from "./components/ErrorPage";
+import OAuth2RedirectHandler from './components/OAuth2RedirectHandler';
 
 const AppRouter: React.FC = () => {
   // Use the hook to access the location object.
@@ -45,6 +46,7 @@ const AppRouter: React.FC = () => {
             </PrivateRoute>
           }
         />
+        <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
 
         <Route
           path="/dashboard"
