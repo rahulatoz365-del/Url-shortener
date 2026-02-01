@@ -130,31 +130,26 @@ public class UrlMappingService {
     // OPTIMIZED METHOD FOR HIGH CONCURRENCY
     // -------------------------------------------------------------------------
     public UrlMapping getOriginalUrl(String shortUrl) {
-        UrlMapping urlMapping = urlMappingRepository.findByShortUrl(shortUrl);
-        
-        if (urlMapping != null) {
-            // ASYNC EXECUTION: This block runs in a separate thread.
-            // The user gets the return value immediately, without waiting for the DB write.
-            CompletableFuture.runAsync(() -> {
-                try {
-                    // Update click count
-                    urlMapping.setClickCount(urlMapping.getClickCount() + 1);
-                    urlMappingRepository.save(urlMapping);
+    UrlMapping urlMapping = urlMappingRepository.findByShortUrl(shortUrl);
+    
+    if (urlMapping != null) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                // 1. Atomic DB increment (Safe for Cache)
+                urlMappingRepository.incrementClickCount(urlMapping.getId());
 
-                    // Create click event analytics
-                    ClickEvents clickEvents = new ClickEvents();
-                    clickEvents.setClickDate(LocalDateTime.now());
-                    clickEvents.setUrlMapping(urlMapping);
-                    clickEventRepository.save(clickEvents);
-                } catch (Exception e) {
-                    // Log the error if analytics fail, but don't stop the user
-                    System.err.println("Error saving analytics for " + shortUrl + ": " + e.getMessage());
-                }
-            });
-        }
-        return urlMapping;
+                // 2. Save Analytics
+                ClickEvents clickEvents = new ClickEvents();
+                clickEvents.setClickDate(LocalDateTime.now());
+                clickEvents.setUrlMapping(urlMapping);
+                clickEventRepository.save(clickEvents);
+            } catch (Exception e) {
+                System.err.println("Analytics error: " + e.getMessage());
+            }
+        });
     }
-
+    return urlMapping;
+}
     // Deletes a short URL and its click events, only if it belongs to the given user
     @Transactional
     public void deleteShortUrl(Long id, User user) {
