@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture; // Import added
 import java.util.stream.Collectors;
 
 // Service for managing URL mappings and click events.
@@ -125,16 +126,31 @@ public class UrlMappingService {
                 ));
     }
 
-    // Retrieves original URL by short URL and logs a click.
+    // -------------------------------------------------------------------------
+    // OPTIMIZED METHOD FOR HIGH CONCURRENCY
+    // -------------------------------------------------------------------------
     public UrlMapping getOriginalUrl(String shortUrl) {
         UrlMapping urlMapping = urlMappingRepository.findByShortUrl(shortUrl);
+        
         if (urlMapping != null) {
-            urlMapping.setClickCount(urlMapping.getClickCount() + 1);
-            urlMappingRepository.save(urlMapping);
-            ClickEvents clickEvents = new ClickEvents();
-            clickEvents.setClickDate(LocalDateTime.now());
-            clickEvents.setUrlMapping(urlMapping);
-            clickEventRepository.save(clickEvents);
+            // ASYNC EXECUTION: This block runs in a separate thread.
+            // The user gets the return value immediately, without waiting for the DB write.
+            CompletableFuture.runAsync(() -> {
+                try {
+                    // Update click count
+                    urlMapping.setClickCount(urlMapping.getClickCount() + 1);
+                    urlMappingRepository.save(urlMapping);
+
+                    // Create click event analytics
+                    ClickEvents clickEvents = new ClickEvents();
+                    clickEvents.setClickDate(LocalDateTime.now());
+                    clickEvents.setUrlMapping(urlMapping);
+                    clickEventRepository.save(clickEvents);
+                } catch (Exception e) {
+                    // Log the error if analytics fail, but don't stop the user
+                    System.err.println("Error saving analytics for " + shortUrl + ": " + e.getMessage());
+                }
+            });
         }
         return urlMapping;
     }
