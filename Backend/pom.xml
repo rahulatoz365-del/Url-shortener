@@ -88,6 +88,17 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+         <!-- Spring Cache Abstraction -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-cache</artifactId>
+</dependency>
+
+<!-- Caffeine (The actual cache engine) -->
+<dependency>
+    <groupId>com.github.ben-manes.caffeine</groupId>
+    <artifactId>caffeine</artifactId>
+</dependency>
         <!--  6. UTILS: Lombok, DevTools, Docker  -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
