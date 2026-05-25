@@ -93,7 +93,3 @@ docker-compose up --build
 * **Password Hashing:** Passwords are encrypted using Bcrypt before entering the database.
 * **Stateless Auth:** System uses JWTs, eliminating the need for server-side session memory.
 * **CORS & CSRF:** Strictly configured to only allow authorized cross-origin requests from the React frontend.
-
-```
-
-```
